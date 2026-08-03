@@ -29,6 +29,9 @@ namespace BulkyBookWeb.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -41,17 +44,20 @@ namespace BulkyBookWeb.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "Action"
+                            DisplayOrder = 1,
+                            Name = "Fiction"
                         },
                         new
                         {
                             Id = 2,
+                            DisplayOrder = 2,
                             Name = "Scifi"
                         },
                         new
                         {
                             Id = 3,
-                            Name = "History"
+                            DisplayOrder = 3,
+                            Name = "Fiction"
                         });
                 });
 #pragma warning restore 612, 618
