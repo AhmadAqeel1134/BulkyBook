@@ -14,15 +14,13 @@ namespace BulkyBookWeb.Data
         //convert class -> DB table
         public DbSet<Category> Categories { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+       protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Category>().HasData(
-                new Category { Id = 1, Name = "Action" },
-                new Category { Id = 2, Name = "Scifi"  },
-                new Category { Id = 3, Name = "History"}
-             );
-
+            modelBuilder.Entity<Category>().HasData( 
+                new Category { Id=  1, Name = "Fiction", DisplayOrder = 1 },
+                new Category { Id = 2, Name = "Scifi",   DisplayOrder = 2 },
+                new Category { Id = 3, Name = "Fiction", DisplayOrder = 3 }
+                );
 
 
         }
