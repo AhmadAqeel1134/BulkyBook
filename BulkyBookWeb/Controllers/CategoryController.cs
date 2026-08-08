@@ -14,6 +14,7 @@ namespace BulkyBookWeb.Controllers
         }
         public IActionResult Index()
         {
+            //EF core 
             var categories = _context.Categories.ToList();
             return View("Index",categories);
         }
