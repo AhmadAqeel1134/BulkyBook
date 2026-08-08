@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BulkyBookWeb.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20260803185135_correct-display-order")]
-    partial class correctdisplayorder
+    [Migration("20260808160337_specified-range-for-display-order")]
+    partial class specifiedrangefordisplayorder
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,9 +37,15 @@ namespace BulkyBookWeb.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DisplayOrder")
+                        .IsUnique();
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Categories");
 
@@ -60,7 +66,7 @@ namespace BulkyBookWeb.Migrations
                         {
                             Id = 3,
                             DisplayOrder = 3,
-                            Name = "Fiction"
+                            Name = "Haunted"
                         });
                 });
 #pragma warning restore 612, 618
