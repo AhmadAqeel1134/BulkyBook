@@ -35,7 +35,6 @@ namespace BulkyBookWeb.Controllers
             {
                 return View();
             }
-            //EF core
             _context.Categories.Add(category);
             try
             {
