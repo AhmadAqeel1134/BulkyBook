@@ -46,9 +46,86 @@ namespace BulkyBookWeb.Controllers
                 ModelState.AddModelError("", "Duplicate Name or Display Order");
                 return View();
             }
-           
-            return RedirectToAction("Index"); 
+
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult Update(int? categoryId)
+        {
+
+            if (categoryId == null || categoryId == 0)
+            {
+                return NotFound();
+            }
+
+            var categoryToUpdate = _context.Categories.Find(categoryId);
+
+            if (categoryToUpdate == null)
+            {
+                return NotFound();
+            }
+            return View(categoryToUpdate);
+        }
+
+        [HttpPost]
+        [ActionName("Update")]
+        public IActionResult UpdateCategoryInfoPostAction(Category updatedCategory)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+            _context.Categories.Update(updatedCategory);
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Error while updating the category information");
+                return View();
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult Delete(int? categoryId)
+        {
+            if (categoryId == null || categoryId == 0)
+            {
+                return NotFound();
+            }
+
+            var categoryToDelete = _context.Categories.Find(categoryId);
+            if (categoryToDelete == null)
+            {
+                return NotFound();
+            }
+            return View(categoryToDelete);
+
+        }
+
+        [HttpPost]
+        [ActionName("Delete")]
+        public IActionResult DeleteCategoryEndpoint(int categoryId)
+        {
+            var categoryToDelete = _context.Categories.Find(categoryId);
+            if (categoryToDelete == null)   
+            {
+                return NotFound();
+            }
+            _context.Categories.Remove(categoryToDelete);
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                return View();
+            }
+            return RedirectToAction("Index");
         }
 
     }
+
 }
