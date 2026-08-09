@@ -1,3 +1,5 @@
+using BulkyBook.Business.Services;
+using BulkyBook.Business.Services.IServices;
 using BulkyBook.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +15,11 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SQLConnection"));
 });
 
+
+//scoped->created once per HTTP req, we can use it throughout http req and then we can throw away
+
+//ask implementatipn of ICategoryService, provide me implementation of CategoryService
+builder.Services.AddScoped<ICategoryService,CategoryService>();
 
 var app = builder.Build();
 

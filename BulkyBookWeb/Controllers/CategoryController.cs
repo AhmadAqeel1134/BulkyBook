@@ -2,21 +2,23 @@
 using Microsoft.AspNetCore.Mvc;
 using BulkyBook.DataAccess.Data;
 using BulkyBook.Models;
+using BulkyBook.Business.Services.IServices;
+using System.Threading.Tasks;
 
 
 namespace BulkyBookWeb.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly ApplicationDBContext _context;
-        public CategoryController(ApplicationDBContext context)
+        private readonly ICategoryService _categoryService;
+        public CategoryController(ICategoryService categoryService)
         {
-            _context = context;
+            _categoryService = categoryService;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             //EF core 
-            var categories = _context.Categories.ToList();
+            var categories = await  _categoryService.getAllCategoriesAsync();
             return View("Index", categories);
         }
 
@@ -27,31 +29,27 @@ namespace BulkyBookWeb.Controllers
 
         [HttpPost]
         [ActionName("CreateCategory")]
-        public IActionResult CreateCategoryPostAction(Category category)
+        public async Task<IActionResult> CreateCategoryPostAction(Category category)
         {
-            //category will get its value because of asp-for which binded form input fields with model fields
-
             if (!ModelState.IsValid)
             {
                 return View();
             }
-            _context.Categories.Add(category);
             try
             {
-                _context.SaveChanges();
+              await   _categoryService.createCategoryAsync(category);
                 TempData["success"] = "Category created successfully";
             }
             catch (Exception ex)
             {
-                //asp -validation-summary =ModelOnly will read only this error sss
-                ModelState.AddModelError("", "Duplicate Name or Display Order");
+                TempData["error"] = "Failed to created category";
                 return View();
             }
 
             return RedirectToAction("Index");
         }
 
-        public IActionResult Update(int? categoryId)
+        public async Task <IActionResult> Update(int? categoryId)
         {
 
             if (categoryId == null || categoryId == 0)
@@ -59,7 +57,7 @@ namespace BulkyBookWeb.Controllers
                 return NotFound();
             }
 
-            var categoryToUpdate = _context.Categories.Find(categoryId);
+            var categoryToUpdate = await _categoryService.getCategoryByIdAsync(categoryId.Value);
 
             if (categoryToUpdate == null)
             {
@@ -70,35 +68,35 @@ namespace BulkyBookWeb.Controllers
 
         [HttpPost]
         [ActionName("Update")]
-        public IActionResult UpdateCategoryInfoPostAction(Category updatedCategory)
+        public async Task<IActionResult> UpdateCategoryInfoPostAction(Category updatedCategory)
         {
             if (!ModelState.IsValid)
             {
                 return View();
             }
-            _context.Categories.Update(updatedCategory);
+          
             try
             {
-                _context.SaveChanges();
+                await _categoryService.updateCategoryAsync(updatedCategory);
                 TempData["success"] = "Category updated successfully";
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", "Error while updating the category information");
+                TempData["error"] = "Failed to update category";
                 return View();
             }
 
             return RedirectToAction("Index");
         }
 
-        public IActionResult Delete(int? categoryId)
+        public async Task<IActionResult> Delete(int? categoryId)
         {
             if (categoryId == null || categoryId == 0)
             {
                 return NotFound();
             }
 
-            var categoryToDelete = _context.Categories.Find(categoryId);
+            var categoryToDelete = await _categoryService.getCategoryByIdAsync(categoryId.Value);
             if (categoryToDelete == null)
             {
                 return NotFound();
@@ -109,22 +107,16 @@ namespace BulkyBookWeb.Controllers
 
         [HttpPost]
         [ActionName("Delete")]
-        public IActionResult DeleteCategoryEndpoint(int categoryId)
-        {
-            
-            var categoryToDelete = _context.Categories.Find(categoryId);
-            if (categoryToDelete == null)   
-            {
-                return NotFound();
-            }
-            _context.Categories.Remove(categoryToDelete);
+        public async Task<IActionResult> DeleteCategoryEndpoint(int categoryId)
+        {   
             try
             {
-                _context.SaveChanges();
+                await _categoryService.deleteCategoryAsync(categoryId);
                 TempData["success"] = "Category Deleted successfully";
             }
             catch (Exception ex)
             {
+                TempData["error"] = "Error deleting category";
                 return View();
             }
             return RedirectToAction("Index");
