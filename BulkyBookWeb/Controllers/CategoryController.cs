@@ -39,6 +39,7 @@ namespace BulkyBookWeb.Controllers
             try
             {
                 _context.SaveChanges();
+                TempData["success"] = "Category created successfully";
             }
             catch (Exception ex)
             {
@@ -79,6 +80,7 @@ namespace BulkyBookWeb.Controllers
             try
             {
                 _context.SaveChanges();
+                TempData["success"] = "Category updated successfully";
             }
             catch (Exception ex)
             {
@@ -109,6 +111,7 @@ namespace BulkyBookWeb.Controllers
         [ActionName("Delete")]
         public IActionResult DeleteCategoryEndpoint(int categoryId)
         {
+            
             var categoryToDelete = _context.Categories.Find(categoryId);
             if (categoryToDelete == null)   
             {
@@ -118,6 +121,7 @@ namespace BulkyBookWeb.Controllers
             try
             {
                 _context.SaveChanges();
+                TempData["success"] = "Category Deleted successfully";
             }
             catch (Exception ex)
             {
