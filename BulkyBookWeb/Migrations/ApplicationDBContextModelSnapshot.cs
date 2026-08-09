@@ -34,9 +34,15 @@ namespace BulkyBookWeb.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DisplayOrder")
+                        .IsUnique();
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Categories");
 
@@ -57,7 +63,7 @@ namespace BulkyBookWeb.Migrations
                         {
                             Id = 3,
                             DisplayOrder = 3,
-                            Name = "Fiction"
+                            Name = "Haunted"
                         });
                 });
 #pragma warning restore 612, 618

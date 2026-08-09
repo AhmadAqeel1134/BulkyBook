@@ -7,7 +7,7 @@
 namespace BulkyBookWeb.Migrations
 {
     /// <inheritdoc />
-    public partial class initialmodelsetup : Migration
+    public partial class UniqueConstraintOnCategoryModelFields : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,7 +18,7 @@ namespace BulkyBookWeb.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     DisplayOrder = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -31,10 +31,22 @@ namespace BulkyBookWeb.Migrations
                 columns: new[] { "Id", "DisplayOrder", "Name" },
                 values: new object[,]
                 {
-                    { 1, 0, "Action" },
-                    { 2, 0, "Scifi" },
-                    { 3, 0, "History" }
+                    { 1, 1, "Fiction" },
+                    { 2, 2, "Scifi" },
+                    { 3, 3, "Haunted" }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Categories_DisplayOrder",
+                table: "Categories",
+                column: "DisplayOrder",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Categories_Name",
+                table: "Categories",
+                column: "Name",
+                unique: true);
         }
 
         /// <inheritdoc />
