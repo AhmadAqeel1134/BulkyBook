@@ -1,7 +1,7 @@
 ﻿//using BulkyBookWeb.Migrations;
 using Microsoft.AspNetCore.Mvc;
-using BulkyBookWeb.Data;
-using BulkyBookWeb.Models;
+using BulkyBook.DataAccess.Data;
+using BulkyBook.Models;
 
 
 namespace BulkyBookWeb.Controllers

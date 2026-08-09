@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace BulkyBookWeb.Models
+namespace BulkyBook.Models
 {
 
     //name of class = name of table
