@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace BulkyBookWeb.Models
+namespace BulkyBook.Models
 {
 
     //name of class = name of table
@@ -10,11 +9,13 @@ namespace BulkyBookWeb.Models
     {
         //[Key]
         public int Id { get; set; }
-        [Required] 
+        [Required]
+        [Display(Name="Category Name")]
         public string Name { get; set; } = string.Empty;
 
 
         [Required]
+        [Display(Name = "Display Order")]
         [Range(0,100,ErrorMessage="Display Order must be between 0 and 100")]
         public int DisplayOrder { get; set; }
 
