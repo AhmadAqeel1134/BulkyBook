@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace BulkyBookWeb.Controllers
 {
+    [Area("Customer")]
     public class CategoryController : Controller
     {
         private readonly ICategoryService _categoryService;
