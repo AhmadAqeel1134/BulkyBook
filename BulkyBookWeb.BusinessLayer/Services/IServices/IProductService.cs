@@ -13,7 +13,7 @@ namespace BulkyBook.Business.Services.IServices
         Task updateProductAsync(Product prodToBeUpdated);
         Task deleteProductAsync(int Id);
 
-        Task<IEnumerable<Product>> getAllProductsAsync();
+        Task<IEnumerable<Product>> getAllProductsAsync(bool includeCategory=false);
         Task<IEnumerable<Product>> getProductsByCategoryAsync(int categoryId);
     }
 }
