@@ -2,10 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using BulkyBook.DataAccess.Data;
 using BulkyBook.Models;
+using BulkyBook.Models.ViewModels;
 using BulkyBook.Business.Services.IServices;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 using System.Reflection.Metadata.Ecma335;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 
 namespace BulkyBookWeb.Areas.Customer.Controllers
@@ -15,33 +18,104 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
     {
 
         private readonly IProductService _productService;
+        private readonly ICategoryService _categoryService;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProductController(IProductService productService)
+        public ProductController(IProductService productService,ICategoryService categoryService, IWebHostEnvironment webHostEnvironment    )
         {
-            _productService = productService;   
+            _productService = productService;
+            _categoryService = categoryService;
+            _webHostEnvironment = webHostEnvironment;
         }
-
+        private async Task<ProductViewModel> getProductViewModel()
+        {
+            var categories = await _categoryService.getAllCategoriesAsync();
+            ProductViewModel productViewModel = new()
+            {
+                CategoryList = categories.Select(c => new SelectListItem
+                {
+                    Text = c.Name,
+                    Value = c.Id.ToString()
+                }),
+                Product = new Product()
+            };
+            return productViewModel;
+        }
         public async Task<IActionResult> Index()
         { 
             return View();
         }
 
-        public IActionResult CreateProduct()
+        public async Task<IActionResult> UpsertProduct()
         {
-            return View();
+
+            //Pass data to view from controller
+            //3.) View Model
+            //var categories = await _categoryService.getAllCategoriesAsync();
+            //ProductViewModel productViewModel = new()
+            //{
+            //    CategoryList = categories.Select(c => new SelectListItem
+            //    {
+            //        Text = c.Name,
+            //        Value = c.Id.ToString()
+            //    }),
+
+            //    Product = new Product()
+            //};
+
+            //passing data from controller -> view
+            //1.) View Data
+
+            //ViewData["categoryList"] = categoryList;
+
+            //passing data from controller -> view
+            //2  .) View Bag
+            //ViewBag.CategoryList = categoryList;
+
+            var productVM = await getProductViewModel();
+
+            return View(productVM);
+        }
+         
+        private async Task saveImageInProductFolder(Product prod,IFormFile file )
+        {
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
+            if (file != null)
+            {
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                string productUpdPath = Path.Combine("images", "Products");
+                string finalPath = Path.Combine(wwwRootPath, productUpdPath);
+
+                if (!Directory.Exists(finalPath))
+                    Directory.CreateDirectory(finalPath);
+
+                using (var fileStream = new FileStream(Path.Combine(finalPath, fileName), FileMode.Create))
+                {
+                     file.CopyTo(fileStream);
+                }
+                prod.ImageUrl = Path.Combine(@"\", productUpdPath, fileName).Replace("\\", "/");
+            }
+
         }
 
+
         [HttpPost]
-        [ActionName("CreateProduct")]
-        public async Task<IActionResult> CreateProductPostAsync(Product prod)
+        [ActionName("UpsertProduct")]
+        public async Task<IActionResult> UpsertProductPostAsync(ProductViewModel prodVM, IFormFile? file)
         {
-          if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                return View();
+                var productVM = await getProductViewModel();
+                return View(productVM);
             }
             try
             {
-                await _productService.createProductAsync(prod);
+                Product prodToAdd = prodVM.Product;
+                if (file != null)
+                {
+                    await saveImageInProductFolder(prodToAdd, file);
+                }
+                    await _productService.createProductAsync(prodToAdd);
                 TempData["success"] = "Product created successfully";
             }
             catch (Exception ex)
@@ -51,42 +125,6 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             }
             return RedirectToAction("Index"); 
 
-        }
-
-        public async Task<IActionResult> UpdateProduct(int? prodId)
-        {
-
-            if (prodId ==0 || prodId==null)
-            {
-                return NotFound();
-            }
-
-            var updProduct = await _productService.getProductByIdAsync(prodId.Value);
-            if(updProduct == null)
-                return NotFound();
-            return View(updProduct);
-
-            
-        }
-
-        [HttpPost]
-        [ActionName("UpdateProduct")]
-        public async Task<IActionResult> UpdateProductPostAsync(Product updProd)
-        {
-            if(!ModelState.IsValid)
-            {
-                return View();
-            }
-            try
-            {
-               await _productService.updateProductAsync(updProd);
-               TempData["success"] = "Product updated successfully";
-            }catch(Exception ex)
-            {
-                TempData["error"] = "Failed to update Product";
-                return View();
-            }
-            return RedirectToAction("Index");   
         }
 
         public async Task<IActionResult> DeleteProduct(int? prodId)
