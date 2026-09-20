@@ -41,43 +41,9 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             };
             return productViewModel;
         }
-        public async Task<IActionResult> Index()
-        { 
-            return View();
-        }
 
-        public async Task<IActionResult> UpsertProduct()
-        {
 
-            //Pass data to view from controller
-            //3.) View Model
-            //var categories = await _categoryService.getAllCategoriesAsync();
-            //ProductViewModel productViewModel = new()
-            //{
-            //    CategoryList = categories.Select(c => new SelectListItem
-            //    {
-            //        Text = c.Name,
-            //        Value = c.Id.ToString()
-            //    }),
-
-            //    Product = new Product()
-            //};
-
-            //passing data from controller -> view
-            //1.) View Data
-
-            //ViewData["categoryList"] = categoryList;
-
-            //passing data from controller -> view
-            //2  .) View Bag
-            //ViewBag.CategoryList = categoryList;
-
-            var productVM = await getProductViewModel();
-
-            return View(productVM);
-        }
-         
-        private async Task saveImageInProductFolder(Product prod,IFormFile file )
+        private async Task saveImageInProductFolder(Product prod, IFormFile file)
         {
             string wwwRootPath = _webHostEnvironment.WebRootPath;
             if (file != null)
@@ -91,37 +57,69 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
                 using (var fileStream = new FileStream(Path.Combine(finalPath, fileName), FileMode.Create))
                 {
-                     file.CopyTo(fileStream);
+                    file.CopyTo(fileStream);
                 }
                 prod.ImageUrl = Path.Combine(@"\", productUpdPath, fileName).Replace("\\", "/");
             }
 
         }
 
+        public async Task<IActionResult> Index()
+        { 
+            return View();
+        }
+
+        public async Task<IActionResult> UpsertProduct(int? prodId)
+        {
+            var productVM = await getProductViewModel();
+            if (prodId == null || prodId == 0)
+            {
+                return View(productVM);
+            }
+
+            //prod exists->make view to edit it
+            var prodToEdit = await _productService.getProductByIdAsync(prodId.Value);
+            productVM.Product = prodToEdit;
+            return View(productVM); 
+
+        }
 
         [HttpPost]
         [ActionName("UpsertProduct")]
         public async Task<IActionResult> UpsertProductPostAsync(ProductViewModel prodVM, IFormFile? file)
         {
+
+            var productVM = await getProductViewModel();
             if (!ModelState.IsValid)
             {
-                var productVM = await getProductViewModel();
                 return View(productVM);
             }
             try
             {
-                Product prodToAdd = prodVM.Product;
                 if (file != null)
                 {
-                    await saveImageInProductFolder(prodToAdd, file);
+                    await saveImageInProductFolder(prodVM.Product, file);
                 }
+                if (prodVM.Product.Id == null || prodVM.Product.Id == 0)
+                {
+                    //create new product
+                    Product prodToAdd = prodVM.Product;
                     await _productService.createProductAsync(prodToAdd);
-                TempData["success"] = "Product created successfully";
+                    TempData["success"] = "Product created successfully";
+                }
+                else
+                {
+
+                    //update existing product
+                    Product updatedProduct = prodVM.Product;
+                    await _productService.updateProductAsync(updatedProduct);
+                    TempData["success"] = "Product updated successfully";
+                }
             }
             catch (Exception ex)
             {
                 TempData["error"] = "Failed to create Product";
-                return View();
+                return View(productVM);
             }
             return RedirectToAction("Index"); 
 

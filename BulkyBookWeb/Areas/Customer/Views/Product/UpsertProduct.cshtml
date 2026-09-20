@@ -7,13 +7,20 @@
     </a>
     <div class="card border shadow-sm overflow-hidden">
         <div class="card-header text-white py-3 px-4" style="background: linear-gradient(to right, #065f46, #282828, #191414);">
-            <h5 class="mb-0 fw-bold"><i class="bi bi-plus-lg me-2"></i>Create Product</h5>
-            <p class="mb-0 small" style="color: #1DB954;">Add a new Product</p>
+            <h5 class="mb-0 fw-bold"><i class="bi bi-plus-lg me-2"></i>
+                @(Model.Product.Id != 0 ? "Edit Product" : "Create Product") 
+            </h5>
+            <p class="mb-0 small" style="color: #1DB954;">
+                @(Model.Product.Id != 0 ? "Edit a Product" : "Add a new Product")
+            </p>
         </div>
         <div class="card-body p-4">
             <form method="post" enctype="multipart/form-data">
+                <div class="row">
                 <div class="col-lg-8 t">
                     <div asp-validation-summary="ModelOnly" class="text-danger" mb-3></div>
+                    <input asp-for="Product.Id" hidden>
+                    <input asp-for="Product.ImageUrl" hidden>
                     <div class="row g-3">
                   <div class="col-12">
                         <label asp-for="Product.Title" class="form-label fw-semibold small"></label>
@@ -22,7 +29,8 @@
                   </div>
                     <div class="col-12">
                             <label asp-for="Product.Description" class="form-label fw-semibold small"></label>
-                            <input type="text" asp-for="Product.Description" class="form-control" placeholder="Enter product description" />
+                            <textarea  asp-for="Product.Description" hidden class="form-control" placeholder="Enter product description"></textarea>
+                                <div id="quill-editor-des" style="height:200px;"></div>
                             <span asp-validation-for="Product.Description" class="text-danger small"></span>
                     </div>
                     <div class="col-6">
@@ -37,7 +45,7 @@
                     </div>
                     </div>
                     <div class="border rounded p-3 mt-3 bg-light">
-                        <p class="text-uppercase fw-semibold text-secondary mb-3" style="font-size: 0.65 rem; letter-spacing: 0.1em;">Pricing</p>
+                        <p class="text-uppercase fw-semibold text-secondary mb-3" style="font-size: 0.65rem; letter-spacing: 0.1em;">Pricing</p>
                         <div class ="row g-3">
                     <div class="col-6 col-md-3">
                                 <label asp-for="Product.ListPrice" class="form-label fw-semibold small"></label>
@@ -79,18 +87,36 @@
                         <label class="form-label fw-semibold small">Product Image</label>
                         <div class="border border-2 border-dashed rounded p-4 text-center ">
                             <i class="bi bi-cloud-upload fs-4 text-secondary"></i>
-                            <input type="file" name="file" accept="image/*" class="form-control form-control-sm mt-2"></input>
+                            <input type="file" name="file" accept="image/*" class="form-control form-control-sm mt-2">
                             <p class="text-secondary mt-1 mb-0" style="font-size:0.75rem;">Upload image for product image (JPG,PNG)</p>
                         </div>
                     </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-accent fw-semibold">
+                                @(Model.Product.Id != 0 ? "Edit Product" : "Create Product")
+                            </button>
+                            <a asp-controller="Product" asp-action="Index" class="btn btn-light fw-medium">Cancel</a>
+                        </div>
                 </div>
                 <div class="col-lg-4">
                     <!--image-->
-
-                </div>       
-                <div class="d-flex gap-2 mt-4">
-                    <button type="submit" class="btn btn-accent fw-semibold">Create Product</button>
-                    <a asp-controller="Product" asp-action="Index" class="btn btn-light fw-medium">Cancel</a>
+                    @if(!string.IsNullOrEmpty(Model.Product.ImageUrl))
+                    {
+                    <div class="border rounded p-3 bg-light text-center">
+                        <p class="text-uppercase fw-semibold text-secondary mb-2" style="font-size:0.65rem;letter-spacing:0.1rem;">Current Image</p>
+                          <img src="@Model.Product.ImageUrl" class="img-fluid rounded shadow-sm mb-2">
+                        <p class="text-secondary mb-0" style="font-size:0.75rem;">Upload a new image to replace this one</p>
+                    </div>
+                    }
+                    else
+                    {
+                    <div class="border rounded p-3 bg-light text-center">
+                        <p class="text-uppercase fw-semibold text-secondary mb-2" style="font-size:0.65rem;letter-spacing:0.1rem;">Current Image</p>
+                          <i class="bi bi-image" style="font-size: 3rem; color:#94a3b8;"></i>
+                         <p class="text-secondary mb-0" style="font-size:0.75rem;">No image</p>
+                    </div>
+                    }
+                    </div>   
                 </div>
             </form>
         </div>
@@ -100,6 +126,28 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+
+
+    <!-- Initialize Quill editor -->
+    <script>
+        const quill = new Quill('#quill-editor-des', {
+          theme: 'snow'
+        });
+
+        const desTextArea=document.querySelector('textarea[name="Product.Description"]');
+      
+       if(desTextArea.value)
+       {
+           quill.root.innerHTML=desTextArea.value;
+       }
+
+       quill.on('text-change',()=>{
+           desTextArea.value=quill.root.innerHTML
+       });
+
+    </script>
 
     @* @{
        await Html.RenderPartialAsync("_ValidationScriptsPartial");
