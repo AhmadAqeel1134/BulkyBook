@@ -20,9 +20,13 @@ namespace BulkyBook.Business.Services
             _context = context;
         }
 
-        public async Task<Product?> getProductByIdAsync(int Id)
+        public async Task<Product?> getProductByIdAsync(int Id, bool includeCategory=false)
         {
-            return await _context.Products.FindAsync(Id);
+            if(includeCategory)
+            {
+                return await _context.Products.Include(i=>i.Category).FirstOrDefaultAsync(i=>i.Id ==Id);
+            }
+            return await _context.Products.FirstOrDefaultAsync(i=>i.Id == Id);
         }
 
         public async Task<Product?> createProductAsync(Product prodToBeCreated)
