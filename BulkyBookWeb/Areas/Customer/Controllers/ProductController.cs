@@ -125,34 +125,6 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
         }
 
-        public async Task<IActionResult> DeleteProduct(int? prodId)
-        {
-            if (prodId == 0 || prodId == null)
-                return NotFound();
-            var prodToDelete = await _productService.getProductByIdAsync(prodId.Value);
-            if (prodToDelete == null)
-                return NotFound();
-            return View(prodToDelete);
-        }
-
-        [HttpPost]
-        [ActionName("DeleteProduct")]
-        public async Task <IActionResult> DeleteProductPostAsync(int ? id)
-        {
-            try
-            {
-                await _productService.deleteProductAsync(id.Value);
-                TempData["success"] = "Product Deleted successfully";
-            }
-            catch(Exception ex)
-            {
-                TempData["error"] = "Failed to delete Product";
-                return View();
-            }
-            return RedirectToAction("Index");
-        }
-
-
 
         #region  API CALLs
 
@@ -163,6 +135,59 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             return Json(new { data=allProd});
         }
 
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteProduct(int? id)
+        {
+            if (id == null || id == 0)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Invalid Id"
+                });
+            }
+
+            try
+            {
+
+                var prodToDelete = await _productService.getProductByIdAsync(id.Value);
+                if (prodToDelete == null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Invalid Id"
+                    });
+                }
+                if (!string.IsNullOrEmpty(prodToDelete.ImageUrl))
+                {
+                    var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, prodToDelete.ImageUrl.TrimStart('\\','/'));
+                    if (System.IO.File.Exists(imagePath))
+                    {
+                        System.IO.File.Delete(imagePath);
+                    }
+
+                }
+                await _productService.deleteProductAsync(id.Value);
+                return Json(new
+                {
+                    success = true,
+                    message = "Product Deleted Successfully"
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Error deleting the product"
+                });
+
+            }
+
+        }
 
         #endregion
 
