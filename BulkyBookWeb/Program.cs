@@ -20,6 +20,8 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 
 //ask implementatipn of ICategoryService, provide me implementation of CategoryService
 builder.Services.AddScoped<ICategoryService,CategoryService>();
+//ask implementatipn of IProductService, provide me implementation of ProductService
+builder.Services.AddScoped<IProductService, ProductService>();
 
 var app = builder.Build();
 
