@@ -6,9 +6,9 @@ using BulkyBook.Business.Services.IServices;
 using System.Threading.Tasks;
 
 
-namespace BulkyBookWeb.Controllers
+namespace BulkyBookWeb.Areas.Admin.Controllers
 {
-    [Area("Customer")]
+    [Area("Admin")]
     public class CategoryController : Controller
     {
         private readonly ICategoryService _categoryService;
